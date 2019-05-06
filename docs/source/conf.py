@@ -45,7 +45,8 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.napoleon',
     'sphinxcontrib_trio',
-#    'sphinx_autodoc_typehints',
+    # Would like to use this, but it has too many issues currently:
+    # 'sphinx_autodoc_typehints',
 ]
 
 intersphinx_mapping = {

@@ -1,0 +1,18 @@
+# Testing
+pytest
+pytest-cov
+pytest-trio
+
+# Tools
+black == 19.3b0
+mypy >= 0.701; implementation_name == "cpython"
+flake8
+
+# Project dependencies
+attrs >= 18.1.0
+async_generator >= 1.9
+
+# typed-ast is required by mypy and doesn't build on PyPy;
+# it will be unconstrained in requirements.txt if we don't
+# constrain it here
+typed-ast; implementation_name == "cpython"

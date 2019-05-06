@@ -3,7 +3,7 @@ formats:
   - htmlzip
   - epub
 
-requirements_file: ci/rtd-requirements.txt
+requirements_file: docs-requirements.txt
 
 # Currently RTD's default image only has 3.5
 # This gets us 3.6 (and hopefully 3.7 in the future)
@@ -12,5 +12,5 @@ build:
   image: latest
 
 python:
-  version: 3
+  version: 3.6
   pip_install: True
