@@ -58,11 +58,11 @@ async def test_rwlock(autojump_clock: trio.testing.MockClock) -> None:
         t1a = await nursery.start(holder_task, False)
         t1b = await nursery.start(holder_task, False)
         t1c = await nursery.start(holder_task, False)
-        t2 = await nursery.start(holder_task, True)
-        t3a = await nursery.start(holder_task, False)
-        t3b = await nursery.start(holder_task, False)
-        t4 = await nursery.start(holder_task, True)
-        t5 = await nursery.start(holder_task, True)
+        await nursery.start(holder_task, True)  # t2
+        await nursery.start(holder_task, False)  # t3a
+        await nursery.start(holder_task, False)  # t3b
+        await nursery.start(holder_task, True)  # t4
+        await nursery.start(holder_task, True)  # t5
         t6 = await nursery.start(holder_task, False)
 
         await trio.sleep(0.5)
