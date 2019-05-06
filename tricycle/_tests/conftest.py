@@ -1,1 +1,1 @@
-from pytest_trio.enable_trio_mode import *
+from pytest_trio.enable_trio_mode import *  # type: ignore

@@ -6,9 +6,11 @@ from typing import (
     AsyncIterator,
     AsyncContextManager,
     FrozenSet,
+    List,
     Optional,
     Sequence,
     Set,
+    TYPE_CHECKING,
 )
 
 
@@ -203,16 +205,22 @@ class RWLock:
                 self._readers.add(task)
                 trio.hazmat.reschedule(task)
 
-    @property
-    def read_biased(self) -> bool:
-        return self._read_biased
+    # https://github.com/python/mypy/issues/1362: mypy doesn't support
+    # decorated properties yet
+    if TYPE_CHECKING:
+        read_biased: bool
+    else:
 
-    @read_biased.setter  # type: ignore  # https://github.com/python/mypy/issues/1362
-    @trio.hazmat.enable_ki_protection
-    def read_biased(self, new_value: bool) -> None:
-        if new_value and not self._read_biased:
-            self._wake_all_readers()
-        self._read_biased = new_value
+        @property
+        def read_biased(self) -> bool:
+            return self._read_biased
+
+        @read_biased.setter
+        @trio.hazmat.enable_ki_protection
+        def read_biased(self, new_value: bool) -> None:
+            if new_value and not self._read_biased:
+                self._wake_all_readers()
+            self._read_biased = new_value
 
     def acquire_read_nowait(self) -> None:
         """Equivalent to ``acquire_nowait(for_write=False)``."""

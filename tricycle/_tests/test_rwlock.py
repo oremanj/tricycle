@@ -1,4 +1,4 @@
-import pytest
+import pytest  # type: ignore
 import itertools
 import trio
 import trio.testing
