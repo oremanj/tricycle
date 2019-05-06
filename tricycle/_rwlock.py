@@ -87,9 +87,9 @@ class RWLock:
         """Check whether the lock is currently held.
 
         Returns:
-          str: ``"read"`` if the lock is held by reader(s), ``"write"``
-              if the lock is held by a writer, or ``""`` (which tests
-              as false) if the lock is not held.
+          ``"read"`` if the lock is held by reader(s), ``"write"``
+          if the lock is held by a writer, or ``""`` (which tests
+          as false) if the lock is not held.
         """
         return "read" if self._readers else "write" if self._writer else ""
 
@@ -98,7 +98,7 @@ class RWLock:
         """Attempt to acquire the lock, without blocking.
 
         Args:
-          for_write (bool): If True, attempt to acquire the lock in write mode,
+          for_write: If True, attempt to acquire the lock in write mode,
               which provides exclusive access. If False, attempt to acquire the
               lock in read mode, which permits other readers to also hold it.
 
@@ -125,7 +125,7 @@ class RWLock:
         """Acquire the lock, blocking if necessary.
 
         Args:
-          for_write (bool): If True, acquire the lock in write mode,
+          for_write: If True, acquire the lock in write mode,
               which provides exclusive access. If False, acquire the
               lock in read mode, which permits other readers to also hold it.
 
@@ -265,7 +265,7 @@ class RWLock:
             self.release()
 
     def statistics(self) -> _RWLockStatistics:
-        """Return an object containing debugging information.
+        r"""Return an object containing debugging information.
 
         Currently the following fields are defined:
 
@@ -273,7 +273,7 @@ class RWLock:
         * ``state``: string with one of the values ``"read"`` (held by one
           or more readers), ``"write"`` (held by one writer),
           or ``"unlocked"`` (held by no one)
-        * ``readers``: a frozenset of the :class:`~trio.hazmat.Task`s
+        * ``readers``: a frozenset of the :class:`~trio.hazmat.Task`\s
           currently holding the lock in read mode (may be empty)
         * ``writer``: the :class:`trio.hazmat.Task` currently holding
           the lock in write mode, or None if the lock is not held in write mode
