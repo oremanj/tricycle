@@ -24,6 +24,7 @@ Windows.
 
 Currently we have:
 
+* a readers-writer lock (`tricycle.RWLock`)
 * [watch this space!]
 
 
