@@ -28,6 +28,8 @@ nitpicky = True
 nitpick_ignore = [
     # Format is ("sphinx reference type", "string"), e.g.:
     ("py:obj", "bytes-like"),
+    ("py:class", "None"),
+    ("py:exc", "Anything else"),
 ]
 
 # -- General configuration ------------------------------------------------
@@ -103,6 +105,10 @@ highlight_language = 'python3'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
+
+# Fold return type into the "Returns:" section, rather than making
+# a separate "Return type:" section
+napoleon_use_rtype = False
 
 
 # -- Options for HTML output ----------------------------------------------

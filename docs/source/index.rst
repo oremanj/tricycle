@@ -10,24 +10,10 @@ tricycle: Experimental extensions for Trio, the friendly async I/O library
 
 ``tricycle`` is a library of extensions to `Trio <https://trio.readthedocs.io/en/latest/>`__ which are a bit too specialized or experimental to include in Trio directly.
 
-.. currentmodule:: tricycle
-.. autoclass:: RWLock
-
-   .. automethod:: acquire
-   .. automethod:: acquire_read
-   .. automethod:: acquire_write
-   .. automethod:: acquire_nowait
-   .. automethod:: acquire_read_nowait
-   .. automethod:: acquire_write_nowait
-   .. automethod:: release
-   .. automethod:: read_locked
-   .. automethod:: write_locked
-   .. automethod:: locked
-   .. automethod:: statistics
-
 .. toctree::
    :maxdepth: 2
 
+   reference.rst
    history.rst
 
 ====================
