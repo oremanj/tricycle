@@ -1,4 +1,5 @@
 import pytest  # type: ignore
+import locale
 import random
 import sys
 
@@ -174,6 +175,8 @@ async def test_text_receive(autojump_clock: trio.testing.MockClock) -> None:
         b"That \xf0\x9f\xa6\x8a is still jumping.\r"  # fox emoji
     )
 
+    assert TextReceiveStream(None).encoding == locale.getpreferredencoding(False)
+
     newline: Optional[str]
     for newline in ("\r", "\n", "\r\n", "", "jump", None):
         output_str = test_input.decode("utf-8")
@@ -203,7 +206,7 @@ async def test_text_receive(autojump_clock: trio.testing.MockClock) -> None:
 
             send_stream, receive_stream_raw = trio.testing.memory_stream_one_way_pair()
             receive_stream = TextReceiveStream(
-                receive_stream_raw, chunk_size=8, newline=newline
+                receive_stream_raw, "UTF-8", chunk_size=8, newline=newline
             )
             if hook is not None:
                 send_stream.send_all_hook = partial(
