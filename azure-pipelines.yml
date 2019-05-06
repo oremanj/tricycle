@@ -15,12 +15,6 @@ jobs:
     #   64-bit: https://www.nuget.org/packages/python/
     #   32-bit: https://www.nuget.org/packages/pythonx86/
     matrix:
-      "Python 3.5, 32 bit":
-        python.version: '3.5.4'
-        python.pkg: 'pythonx86'
-      "Python 3.5, 64 bit":
-        python.version: '3.5.4'
-        python.pkg: 'python'
       "Python 3.6, 32 bit":
         python.version: '3.6.8'
         python.pkg: 'pythonx86'
@@ -55,8 +49,6 @@ jobs:
 #   timeoutInMinutes: 10
 #   strategy:
 #     matrix:
-#       "Python 3.5":
-#         python.version: '3.5'
 #       "Python 3.6":
 #         python.version: '3.6'
 #       "Python 3.7":
@@ -81,8 +73,6 @@ jobs:
   timeoutInMinutes: 10
   strategy:
     matrix:
-      "Python 3.5":
-        python.version: '3.5'
       "Python 3.6":
         python.version: '3.6'
       "Python 3.7":
