@@ -2,8 +2,8 @@ tricycle: experimental extensions for Trio
 ==========================================
 
 This is a library of interesting-but-maybe-not-yet-fully-proven extensions to
-`Trio <https://github.com/python-trio/trio>`__, the Pythonic async I/O library
-(for humans and snake people).
+`Trio <https://github.com/python-trio/trio>`__, the friendly Python library
+for async concurrency and I/O.
 
 While we won't release known-broken code, and we strive for
 cleanliness and good test coverage, please be advised that
