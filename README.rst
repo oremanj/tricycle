@@ -1,6 +1,31 @@
 tricycle: experimental extensions for Trio
 ==========================================
 
+.. image:: https://img.shields.io/pypi/v/tricycle.svg
+   :target: https://pypi.org/project/tricycle
+   :alt: Latest PyPI version
+
+.. image:: https://img.shields.io/badge/docs-read%20now-blue.svg
+   :target: https://tricycle.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation status
+
+.. image:: https://travis-ci.org/oremanj/tricycle.svg?branch=master
+   :target: https://travis-ci.org/oremanj/tricycle
+   :alt: Automated test status
+
+.. image:: https://codecov.io/gh/oremanj/tricycle/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/oremanj/tricycle
+   :alt: Test coverage
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/ambv/black
+   :alt: Code style: black
+
+.. image:: http://www.mypy-lang.org/static/mypy_badge.svg
+   :target: http://www.mypy-lang.org/
+   :alt: Checked with mypy
+
+
 This is a library of interesting-but-maybe-not-yet-fully-proven extensions to
 `Trio <https://github.com/python-trio/trio>`__, the friendly Python library
 for async concurrency and I/O.
@@ -24,7 +49,9 @@ Windows.
 
 Currently we have:
 
-* a readers-writer lock (`tricycle.RWLock`)
+* a readers-writer lock (``tricycle.RWLock``)
+* slightly higher-level stream wrappers (``tricycle.BufferedReceiveStream``
+  and ``tricycle.TextReceiveStream``)
 * [watch this space!]
 
 
