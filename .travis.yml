@@ -8,7 +8,6 @@ matrix:
     - python: 3.6
       env: CHECK_LINT=1
     # The pypy tests are slow, so we list them first
-    - python: pypy3.6
     - language: generic
       env: PYPY_NIGHTLY_BRANCH=py3.6
     - python: 3.6
