@@ -190,6 +190,6 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'tricycle', 'tricycle Documentation',
-     author, 'tricycle', 'Various extensions for Trio, the Python async I/O library',
+     author, 'tricycle', 'Experimental extensions for Trio, the friendly async I/O library',
      'Miscellaneous'),
 ]

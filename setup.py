@@ -7,7 +7,7 @@ LONG_DESC = open("README.rst", encoding="utf-8").read()
 setup(
     name="tricycle",
     version=__version__,
-    description="Various extensions for Trio, the Python async I/O library",
+    description="Experiemntal extensions for Trio, the friendly async I/O library",
     url="https://github.com/oremanj/tricycle",
     long_description=LONG_DESC,
     author="Joshua Oreman",

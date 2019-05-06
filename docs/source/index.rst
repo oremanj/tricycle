@@ -4,9 +4,9 @@
    contain the root `toctree` directive.
 
 
-===================================================================
-tricycle: Various extensions for Trio, the Python async I/O library
-===================================================================
+==========================================================================
+tricycle: Experimental extensions for Trio, the friendly async I/O library
+==========================================================================
 
 .. toctree::
    :maxdepth: 2
