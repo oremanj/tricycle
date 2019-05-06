@@ -175,7 +175,10 @@ async def test_text_receive(autojump_clock: trio.testing.MockClock) -> None:
         b"That \xf0\x9f\xa6\x8a is still jumping.\r"  # fox emoji
     )
 
-    assert TextReceiveStream(None).encoding == locale.getpreferredencoding(False)
+    # Test that encoding=None uses the locale preferred encoding
+    stream = TextReceiveStream(None)  # type: ignore
+    assert stream.encoding == locale.getpreferredencoding(False)
+    del stream
 
     newline: Optional[str]
     for newline in ("\r", "\n", "\r\n", "", "jump", None):
