@@ -15,13 +15,8 @@ setup(
     license="MIT -or- Apache License 2.0",
     packages=find_packages(),
     include_package_data=True,
-    install_requires=[
-        "trio",
-        "trio-typing >= 0.2.0",
-    ],
-    keywords=[
-        "async", "trio"
-    ],
+    install_requires=["trio", "trio-typing >= 0.2.0"],
+    keywords=["async", "trio"],
     python_requires=">=3.6",
     classifiers=[
         "License :: OSI Approved :: MIT License",

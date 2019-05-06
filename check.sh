@@ -27,7 +27,6 @@ To fix formatting and see remaining errors, run
 
     pip install -r test-requirements.txt
     black setup.py tricycle
-    yapf -rpi setup.py trio
     ./check.sh
 
 in your local checkout.

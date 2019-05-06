@@ -108,7 +108,7 @@ if [ "$CHECK_DOCS" = "1" ]; then
     # -n (nit-picky): warn on missing references
     # -W: turn warnings into errors
     sphinx-build -nW  -b html source build
-elif [ "$CHECK_FORMATTING" = "1" ]; then
+elif [ "$CHECK_LINT" = "1" ]; then
     python -m pip install -r test-requirements.txt
     source check.sh
 else

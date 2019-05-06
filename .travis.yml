@@ -6,9 +6,7 @@ matrix:
     - python: 3.6
       env: CHECK_DOCS=1
     - python: 3.6
-      env: CHECK_FORMATTING=1
-    - python: 3.6
-      env: CHECK_TYPING=1
+      env: CHECK_LINT=1
     # The pypy tests are slow, so we list them first
     - python: pypy3.6
     - language: generic
