@@ -2,8 +2,8 @@
 
 set -ex
 
-BLACK_VERSION=18.9b0
-MYPY_VERSION=0.660
+BLACK_VERSION=19.3b0
+MYPY_VERSION=0.701
 
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
     curl -Lo macpython.pkg https://www.python.org/ftp/python/${MACPYTHON}/python-${MACPYTHON}-macosx10.6.pkg
@@ -43,10 +43,10 @@ if [ "$USE_PYPY_NIGHTLY" = "1" ]; then
 fi
 
 if [ "$USE_PYPY_RELEASE_VERSION" != "" ]; then
-    curl -fLo pypy.tar.bz2 https://bitbucket.org/squeaky/portable-pypy/downloads/pypy3.5-${USE_PYPY_RELEASE_VERSION}-linux_x86_64-portable.tar.bz2
+    curl -fLo pypy.tar.bz2 https://bitbucket.org/squeaky/portable-pypy/downloads/pypy3.6-${USE_PYPY_RELEASE_VERSION}-linux_x86_64-portable.tar.bz2
     tar xaf pypy.tar.bz2
-    # something like "pypy3.5-5.7.1-beta-linux_x86_64-portable"
-    PYPY_DIR=$(echo pypy3.5-*)
+    # something like "pypy3.6-7.1.1-beta-linux_x86_64-portable"
+    PYPY_DIR=$(echo pypy3.6-*)
     PYTHON_EXE=$PYPY_DIR/bin/pypy3
     $PYTHON_EXE -m ensurepip
     $PYTHON_EXE -m pip install virtualenv
@@ -81,8 +81,23 @@ fi
 if [ "$CHECK_TYPING" = "1" ]; then
     pip install mypy==${MYPY_VERSION}
     pip install -Ur test-requirements.txt
-    mypy --strict tricycle
-    exit $?
+    if ! mypy --strict -p tricycle; then
+        cat <<EOF
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Type checking problems were found (listed above). To reproduce them, run
+
+   pip install mypy==${MYPY_VERSION}
+   mypy --strict -p tricycle
+
+in your local checkout.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+EOF
+        exit 1
+    fi
 fi
 
 python setup.py sdist --formats=zip
