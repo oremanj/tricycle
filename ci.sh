@@ -120,7 +120,7 @@ else
 
     INSTALLDIR=$(python -c "import os, tricycle; print(os.path.dirname(tricycle.__file__))")
     cp ../setup.cfg $INSTALLDIR
-    pytest -W error -ra --junitxml=../test-results.xml --run-slow --faulthandler-timeout=60 ${INSTALLDIR} --cov="$INSTALLDIR" --cov-config=../.coveragerc --verbose
+    pytest -W error -ra --junitxml=../test-results.xml --faulthandler-timeout=60 ${INSTALLDIR} --cov="$INSTALLDIR" --cov-config=../.coveragerc --verbose
 
     # Disable coverage on 3.8 until we run 3.8 on Windows CI too
     #   https://github.com/python-trio/trio/pull/784#issuecomment-446438407

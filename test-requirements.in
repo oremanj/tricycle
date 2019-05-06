@@ -2,6 +2,7 @@
 pytest
 pytest-cov
 pytest-trio
+pytest-faulthandler
 
 # Tools
 black == 19.3b0
