@@ -1,5 +1,6 @@
 import pytest  # type: ignore
 import random
+import sys
 
 import trio
 import trio.testing
@@ -95,7 +96,7 @@ async def test_buffered_receive(autojump_clock: trio.testing.MockClock) -> None:
     await receive_stream.aclose()
 
 
-@pytest.fixture
+@pytest.fixture  # type: ignore  # "Untyped decorator makes ... untyped"
 async def receiver_factory() -> AsyncIterator[
     Callable[[], AsyncContextManager[BufferedReceiveStream]]
 ]:
@@ -265,11 +266,14 @@ async def test_text_receive(autojump_clock: trio.testing.MockClock) -> None:
             # after the trailing \r and we don't get that line until EOF.
             assert len(received_lines) == length_before_eof + (newline != "\r")
             assert received_lines == output_lines
-            if not newline:
-                newlines_seen = cast(Tuple[str, ...], receive_stream.newlines)
-                assert set(newlines_seen) == {"\r", "\n", "\r\n"}
-            else:
-                assert receive_stream.newlines is None
+            # The .newlines property is broken on PyPy:
+            # https://bitbucket.org/pypy/pypy/issues/3012
+            if sys.implementation.name == "cpython":
+                if not newline:
+                    newlines_seen = cast(Tuple[str, ...], receive_stream.newlines)
+                    assert set(newlines_seen) == {"\r", "\n", "\r\n"}
+                else:
+                    assert receive_stream.newlines is None
 
 
 async def test_text_receive_fix_errors() -> None:

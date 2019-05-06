@@ -18,7 +18,7 @@ idna==2.8                 # via trio
 immutables==0.9           # via contextvars
 mccabe==0.6.1             # via flake8
 more-itertools==7.0.0     # via pytest
-mypy-extensions==0.4.1    # via mypy
+mypy-extensions==0.4.1    # via mypy, trio-typing
 mypy==0.701 ; implementation_name == "cpython"
 outcome==1.0.0            # via trio
 pluggy==0.9.0             # via pytest
@@ -33,5 +33,7 @@ six==1.12.0               # via pytest
 sniffio==1.1.0            # via trio
 sortedcontainers==2.1.0   # via trio
 toml==0.10.0              # via black
-trio==0.11.0              # via pytest-trio
+trio-typing==0.2.0
+trio==0.11.0
 typed-ast==1.3.5 ; implementation_name == "cpython"
+typing-extensions==3.7.2  # via trio-typing
