@@ -1,5 +1,6 @@
-include README.rst CHEATSHEET.rst LICENSE* CODE_OF_CONDUCT* CONTRIBUTING*
+include README.rst LICENSE* CODE_OF_CONDUCT* CONTRIBUTING*
 include .coveragerc
 include test-requirements.txt
+include tricycle/py.typed
 recursive-include docs *
 prune docs/build
