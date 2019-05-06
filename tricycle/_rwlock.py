@@ -4,7 +4,6 @@ from async_generator import asynccontextmanager
 from collections import OrderedDict
 from typing import (
     AsyncIterator,
-    AsyncContextManager,
     FrozenSet,
     List,
     Optional,
