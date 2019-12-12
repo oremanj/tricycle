@@ -13,6 +13,7 @@ from typing import (
     Optional,
     Type,
     TypeVar,
+    TYPE_CHECKING,
 )
 from ._service_nursery import open_service_nursery
 
@@ -125,14 +126,15 @@ class ScopedObject(metaclass=ScopedObjectMeta):
     async def __wrap__(self) -> AsyncIterator[None]:
         yield
 
-    # These are necessary to placate mypy, which doesn't understand
-    # the asynccontextmanager metaclass __call__. They should never
-    # actually get called.
-    async def __aenter__(self: T) -> T:
-        raise AssertionError
+    if TYPE_CHECKING:
+        # These are necessary to placate mypy, which doesn't understand
+        # the asynccontextmanager metaclass __call__. They should never
+        # actually get called.
+        async def __aenter__(self: T) -> T:
+            raise AssertionError
 
-    async def __aexit__(self, *exc: object) -> None:
-        raise AssertionError
+        async def __aexit__(self, *exc: object) -> None:
+            raise AssertionError
 
 
 class BackgroundObject(ScopedObject):

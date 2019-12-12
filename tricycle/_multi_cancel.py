@@ -1,10 +1,10 @@
 import attr
 import trio
 import weakref
-from typing import MutableSet, Optional
+from typing import Iterator, MutableSet, Optional
 
 
-@attr.s(eq=False)
+@attr.s(eq=False, repr=False)
 class MultiCancelScope:
     r"""Manages a dynamic set of :class:`trio.CancelScope`\s that can be
     shielded and cancelled as a unit.
@@ -29,6 +29,14 @@ class MultiCancelScope:
     )
     _shield: bool = attr.ib(default=False, kw_only=True)
     _cancel_called: bool = attr.ib(default=False, kw_only=True)
+
+    def __repr__(self) -> str:
+        descr = ["MultiCancelScope"]
+        if self._shield:
+            descr.append(" shielded")
+        if self._cancel_called:
+            descr.append(" cancelled")
+        return f"<{''.join(descr)}: {list(self._child_scopes)}>"
 
     @property
     def cancel_called(self) -> bool:
