@@ -7,6 +7,7 @@ from typing import (
     AsyncIterator,
     Awaitable,
     Callable,
+    ClassVar,
     Dict,
     GenericMeta,
     Optional,
@@ -59,7 +60,7 @@ class ScopedObjectMeta(abc.ABCMeta):
 
     @asynccontextmanager
     async def __call__(cls: Type[T], *args: Any, **kwds: Any) -> AsyncIterator[T]:
-        self: T = super().__call__(*args, **kwds)
+        self: T = super().__call__(*args, **kwds)  # type: ignore
         async with self.__wrap__():  # type: ignore
             yield self
 
@@ -152,6 +153,7 @@ class BackgroundObject(ScopedObject):
     """
 
     __slots__ = ("nursery",)
+    __daemon: ClassVar[bool]
 
     def __init_subclass__(cls, *, daemon: bool = False, **kwargs: Any):
         cls.__daemon = daemon

@@ -189,7 +189,7 @@ class TextReceiveStream(trio.abc.AsyncResource):
             decoder = info.incrementaldecoder(errors)  # type: ignore
             self._underlying_decoder = decoder
             if universal:
-                return IncrementalNewlineDecoder(decoder, translate)  # type: ignore
+                return IncrementalNewlineDecoder(decoder, translate)
             return decoder
 
         self._decoder = make_decoder(

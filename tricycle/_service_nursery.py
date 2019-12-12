@@ -100,7 +100,7 @@ async def open_service_nursery() -> AsyncIterator[trio.Nursery]:
                 shield_scope = child_task_scopes.open_child(shield=False)
 
                 def wrap_started(value: object = None) -> None:
-                    type(task_status).started(task_status, value)
+                    type(task_status).started(task_status, value)  # type: ignore
                     if trio.hazmat.current_task().parent_nursery is not nursery:
                         # started() didn't move the task due to a cancellation,
                         # so it doesn't get the shield
