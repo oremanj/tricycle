@@ -8,7 +8,7 @@ from io import IncrementalNewlineDecoder
 __all__ = ["BufferedReceiveStream", "TextReceiveStream"]
 
 
-@attr.s(auto_attribs=True, cmp=False)
+@attr.s(auto_attribs=True, eq=False)
 class BufferedReceiveStream(trio.abc.AsyncResource):
     """Wraps a :class:`~trio.abc.ReceiveStream` with buffering capabilities,
     so you can receive known amounts of data at a time.

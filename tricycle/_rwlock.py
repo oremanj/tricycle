@@ -22,7 +22,7 @@ class _RWLockStatistics:
     writers_waiting: int
 
 
-@attr.s(cmp=False, repr=False)
+@attr.s(eq=False, repr=False)
 class RWLock:
     """A `readers-writer lock
     <https://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock>`__.
