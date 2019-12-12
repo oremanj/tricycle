@@ -112,7 +112,7 @@ async def test_shielding(autojump_clock: trio.testing.MockClock) -> None:
 
     async def shield_child_on_creation() -> None:
         try:
-            with parent.open_child(shield=True) as child:
+            with parent.open_child(shield=True):
                 await trio.sleep(1)
             assert False  # pragma: no cover
         finally:
@@ -145,7 +145,7 @@ async def test_shielding(autojump_clock: trio.testing.MockClock) -> None:
         try:
             with trio.CancelScope(shield=True):
                 await trio.sleep(0.3)
-            with parent.open_child() as child:
+            with parent.open_child():
                 await trio.sleep(1)
         finally:
             with trio.CancelScope(shield=True):
