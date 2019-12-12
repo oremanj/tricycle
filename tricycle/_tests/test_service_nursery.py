@@ -10,6 +10,7 @@ from .. import open_service_nursery
 async def test_basic(autojump_clock: trio.testing.MockClock) -> None:
     record = []
     async with open_service_nursery() as nursery:
+
         @nursery.start_soon
         async def background_task() -> None:
             try:
@@ -17,7 +18,7 @@ async def test_basic(autojump_clock: trio.testing.MockClock) -> None:
             finally:
                 record.append("background_task exiting")
 
-        task, = nursery.child_tasks
+        (task,) = nursery.child_tasks
         assert "background_task" in task.name
 
         nursery.cancel_scope.cancel()
@@ -86,11 +87,11 @@ async def test_problems() -> None:
         assert "missing 1 required positional argument" in str(info.value)
 
         with pytest.raises(TypeError) as info:
-            nursery.start_soon(trio.sleep(1))
+            nursery.start_soon(trio.sleep(1))  # type: ignore
         assert "Trio was expecting an async function" in str(info.value)
 
         with pytest.raises(TypeError) as info:
-            nursery.start_soon(int, 42)
+            nursery.start_soon(int, 42)  # type: ignore
         assert "appears to be synchronous" in str(info.value)
 
         first_call = True

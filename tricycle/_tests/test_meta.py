@@ -4,7 +4,7 @@ import types
 import trio
 import trio.testing
 from async_generator import asynccontextmanager
-from typing import Any, AsyncIterator, Coroutine, List
+from typing import Any, AsyncIterator, Coroutine, Iterator, List
 from trio_typing import TaskStatus
 
 from .. import ScopedObject, BackgroundObject
@@ -12,6 +12,7 @@ from .. import ScopedObject, BackgroundObject
 
 def test_too_much_magic() -> None:
     with pytest.raises(TypeError) as info:
+
         class TooMuchMagic(ScopedObject):  # pragma: no cover
             async def __open__(self) -> None:
                 pass
@@ -25,9 +26,8 @@ def test_too_much_magic() -> None:
     )
 
 
-
 @types.coroutine
-def async_yield(value: str) -> None:
+def async_yield(value: str) -> Iterator[str]:
     yield value
 
 
@@ -77,7 +77,13 @@ def test_mro() -> None:
         except StopIteration:
             break
     assert record == [
-        "open A", "open C", "open B", "body", "close D", "close B", "close C"
+        "open A",
+        "open C",
+        "open B",
+        "body",
+        "close D",
+        "close B",
+        "close C",
     ]
 
 
@@ -122,7 +128,12 @@ class DaemonExample(Example, daemon=True):
 async def test_background(autojump_clock: trio.testing.MockClock) -> None:
     async with Example(ticks=100) as obj:
         assert obj.record == [
-            "attrs_post_init", "open", "background", "starting", "running", "started"
+            "attrs_post_init",
+            "open",
+            "background",
+            "starting",
+            "running",
+            "started",
         ]
         del obj.record[:]
         await trio.sleep(5.5)
@@ -135,7 +146,12 @@ async def test_background(autojump_clock: trio.testing.MockClock) -> None:
     # With daemon=True, the background tasks are cancelled when the parent exits
     async with DaemonExample() as obj2:
         assert obj2.record == [
-            "attrs_post_init", "open", "background", "starting", "running", "started"
+            "attrs_post_init",
+            "open",
+            "background",
+            "starting",
+            "running",
+            "started",
         ]
         del obj2.record[:]
         await trio.sleep(5.5)

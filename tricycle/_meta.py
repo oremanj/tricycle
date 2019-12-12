@@ -9,7 +9,6 @@ from typing import (
     Callable,
     ClassVar,
     Dict,
-    GenericMeta,
     Optional,
     Type,
     TypeVar,
