@@ -79,8 +79,8 @@ disconnects::
         stream: trio.abc.HalfCloseableStream
     ) -> AsyncIterator[trio.abc.ReceiveChannel[str], trio.abc.SendChannel[str]]:
         async with trio.open_nursery() as nursery:
-            incoming_w, incoming_r = trio.open_memory_channel[Msg](0)
-            outgoing_w, outgoing_r = trio.open_memory_channel[Msg](0)
+            incoming_w, incoming_r = trio.open_memory_channel[str](0)
+            outgoing_w, outgoing_r = trio.open_memory_channel[str](0)
             nursery.start_soon(receive_messages, stream, incoming_w)
             nursery.start_soon(send_messages, outgoing_r, stream)
             try:

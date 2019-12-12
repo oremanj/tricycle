@@ -7,7 +7,7 @@
 appdirs==1.4.3            # via black
 async-generator==1.10
 attrs==19.3.0
-black==19.10b0
+black==19.10b0 ; implementation_name == "cpython"
 click==7.0                # via black
 contextvars==2.4          # via sniffio, trio
 coverage==4.5.4           # via pytest-cov

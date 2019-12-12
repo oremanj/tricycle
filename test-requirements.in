@@ -5,7 +5,7 @@ pytest-trio
 pytest-faulthandler
 
 # Tools
-black == 19.10b0
+black == 19.10b0; implementation_name == "cpython"
 mypy >= 0.750; implementation_name == "cpython"
 flake8
 
@@ -15,7 +15,7 @@ async_generator >= 1.9
 trio >= 0.12.0
 trio-typing >= 0.3.0
 
-# typed-ast is required by mypy and doesn't build on PyPy;
+# typed-ast is required by black + mypy and doesn't build on PyPy;
 # it will be unconstrained in requirements.txt if we don't
 # constrain it here
 typed-ast; implementation_name == "cpython"

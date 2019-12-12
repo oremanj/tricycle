@@ -14,7 +14,7 @@ flake8 tricycle/ \
     || EXIT_STATUS=$?
 
 # Run mypy
-mypy --strict -p tricycle || EXIT_STATUS=$?
+mypy --strict --implicit-reexport -p tricycle || EXIT_STATUS=$?
 
 # Finally, leave a really clear warning of any issues and exit
 if [ $EXIT_STATUS -ne 0 ]; then

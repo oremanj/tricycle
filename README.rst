@@ -52,6 +52,11 @@ Currently we have:
 * a readers-writer lock (``tricycle.RWLock``)
 * slightly higher-level stream wrappers (``tricycle.BufferedReceiveStream``
   and ``tricycle.TextReceiveStream``)
+* some tools for managing cancellation (``tricycle.open_service_nursery()``
+  and ``tricycle.MultiCancelScope``)
+* a way to make objects that want to keep background tasks running during the
+  object's lifetime (``tricycle.BackgroundObject`` and the more general
+  ``tricycle.ScopedObject``)
 * [watch this space!]
 
 
