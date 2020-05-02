@@ -16,7 +16,8 @@ matrix:
     - python: 3.6
     - python: 3.7
     - python: 3.8
-    - python: nightly
+    # Nightly is disabled due to typed-ast not currently building for it
+    #- python: nightly
 
 script:
   - ./ci.sh
