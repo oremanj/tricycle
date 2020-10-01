@@ -16,8 +16,8 @@ from typing import (
 @attr.s(auto_attribs=True)
 class _RWLockStatistics:
     locked: str
-    readers: FrozenSet[trio.hazmat.Task]
-    writer: Optional[trio.hazmat.Task]
+    readers: FrozenSet[trio.lowlevel.Task]
+    writer: Optional[trio.lowlevel.Task]
     readers_waiting: int
     writers_waiting: int
 
@@ -52,9 +52,9 @@ class RWLock:
 
     """
 
-    _writer: Optional[trio.hazmat.Task] = attr.ib(default=None, init=False)
-    _readers: Set[trio.hazmat.Task] = attr.ib(factory=set, init=False)
-    _waiting: "OrderedDict[trio.hazmat.Task, bool]" = attr.ib(
+    _writer: Optional[trio.lowlevel.Task] = attr.ib(default=None, init=False)
+    _readers: Set[trio.lowlevel.Task] = attr.ib(factory=set, init=False)
+    _waiting: "OrderedDict[trio.lowlevel.Task, bool]" = attr.ib(
         factory=OrderedDict, init=False
     )
     _waiting_writers_count: int = attr.ib(default=0, init=False)
@@ -92,7 +92,7 @@ class RWLock:
         """
         return "read" if self._readers else "write" if self._writer else ""
 
-    @trio.hazmat.enable_ki_protection
+    @trio.lowlevel.enable_ki_protection
     def acquire_nowait(self, *, for_write: bool) -> None:
         """Attempt to acquire the lock, without blocking.
 
@@ -106,7 +106,7 @@ class RWLock:
           RuntimeError: if the current task already holds the lock (in either
               read or write mode)
         """
-        task = trio.hazmat.current_task()
+        task = trio.lowlevel.current_task()
         if self._writer is task or task in self._readers:
             raise RuntimeError("attempt to re-acquire an already held RWLock")
         if self._writer is not None:
@@ -119,7 +119,7 @@ class RWLock:
         else:
             raise trio.WouldBlock
 
-    @trio.hazmat.enable_ki_protection
+    @trio.lowlevel.enable_ki_protection
     async def acquire(self, *, for_write: bool) -> None:
         """Acquire the lock, blocking if necessary.
 
@@ -132,24 +132,24 @@ class RWLock:
           RuntimeError: if the current task already holds the lock (in either
               read or write mode)
         """
-        await trio.hazmat.checkpoint_if_cancelled()
+        await trio.lowlevel.checkpoint_if_cancelled()
         try:
             self.acquire_nowait(for_write=for_write)
         except trio.WouldBlock:
-            task = trio.hazmat.current_task()
+            task = trio.lowlevel.current_task()
             self._waiting[task] = for_write
             self._waiting_writers_count += for_write
 
-            def abort_fn(_: object) -> trio.hazmat.Abort:
+            def abort_fn(_: object) -> trio.lowlevel.Abort:
                 del self._waiting[task]
                 self._waiting_writers_count -= for_write
-                return trio.hazmat.Abort.SUCCEEDED
+                return trio.lowlevel.Abort.SUCCEEDED
 
-            await trio.hazmat.wait_task_rescheduled(abort_fn)
+            await trio.lowlevel.wait_task_rescheduled(abort_fn)
         else:
-            await trio.hazmat.cancel_shielded_checkpoint()
+            await trio.lowlevel.cancel_shielded_checkpoint()
 
-    @trio.hazmat.enable_ki_protection
+    @trio.lowlevel.enable_ki_protection
     def release(self) -> None:
         """Release the lock.
 
@@ -157,7 +157,7 @@ class RWLock:
           RuntimeError: if the current task does not hold the lock (in either
               read or write mode)
         """
-        task = trio.hazmat.current_task()
+        task = trio.lowlevel.current_task()
         if task is self._writer:
             self._writer = None
         elif task in self._readers:
@@ -173,7 +173,7 @@ class RWLock:
                 # Next task is a reader: since we haven't woken
                 # a writer yet, we can wake it,
                 self._readers.add(task)
-                trio.hazmat.reschedule(task)
+                trio.lowlevel.reschedule(task)
                 # In read-biased mode we can continue to wake
                 # all other readers.
                 if self._read_biased:
@@ -187,7 +187,7 @@ class RWLock:
                 # wake the writer and we're done.
                 self._writer = task
                 self._waiting_writers_count -= 1
-                trio.hazmat.reschedule(task)
+                trio.lowlevel.reschedule(task)
                 break
             else:
                 # Next task is a writer, but can't be woken because
@@ -202,7 +202,7 @@ class RWLock:
             if not for_write:
                 del self._waiting[task]
                 self._readers.add(task)
-                trio.hazmat.reschedule(task)
+                trio.lowlevel.reschedule(task)
 
     # https://github.com/python/mypy/issues/1362: mypy doesn't support
     # decorated properties yet
@@ -215,7 +215,7 @@ class RWLock:
             return self._read_biased
 
         @read_biased.setter
-        @trio.hazmat.enable_ki_protection
+        @trio.lowlevel.enable_ki_protection
         def read_biased(self, new_value: bool) -> None:
             if new_value and not self._read_biased:
                 self._wake_all_readers()
@@ -237,7 +237,7 @@ class RWLock:
         """Equivalent to ``acquire(for_write=True)``."""
         return await self.acquire(for_write=True)
 
-    @trio.hazmat.enable_ki_protection
+    @trio.lowlevel.enable_ki_protection
     @asynccontextmanager
     async def read_locked(self) -> AsyncIterator[None]:
         """Returns an async context manager whose ``__aenter__`` blocks
@@ -250,7 +250,7 @@ class RWLock:
         finally:
             self.release()
 
-    @trio.hazmat.enable_ki_protection
+    @trio.lowlevel.enable_ki_protection
     @asynccontextmanager
     async def write_locked(self) -> AsyncIterator[None]:
         """Returns an async context manager whose ``__aenter__`` blocks
@@ -272,9 +272,9 @@ class RWLock:
         * ``state``: string with one of the values ``"read"`` (held by one
           or more readers), ``"write"`` (held by one writer),
           or ``"unlocked"`` (held by no one)
-        * ``readers``: a frozenset of the :class:`~trio.hazmat.Task`\s
+        * ``readers``: a frozenset of the :class:`~trio.lowlevel.Task`\s
           currently holding the lock in read mode (may be empty)
-        * ``writer``: the :class:`trio.hazmat.Task` currently holding
+        * ``writer``: the :class:`trio.lowlevel.Task` currently holding
           the lock in write mode, or None if the lock is not held in write mode
         * ``readers_waiting``: the number of tasks blocked waiting to acquire
           the lock in read mode

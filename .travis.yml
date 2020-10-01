@@ -3,20 +3,17 @@ dist: xenial
 
 matrix:
   include:
-    - python: 3.6
-      env: CHECK_DOCS=1
-    - python: 3.6
-      env: CHECK_LINT=1
     # The pypy tests are slow, so we list them first
-    # 'pypy3' on travis is currently 7.1-beta, which has an __init_subclass__ bug
-    # that we'd run into (fixed on 7.2)
-    #- python: pypy3
+    - python: pypy3.6-7.2.0
+      dist: bionic
     - language: generic
       env: PYPY_NIGHTLY_BRANCH=py3.6
-    - python: 3.6
-    - python: 3.7
-    - python: 3.8
-    # Nightly is disabled due to typed-ast not currently building for it
+    - python: 3.6-dev
+    - python: 3.7-dev
+    - python: 3.8-dev
+    - python: 3.9-dev
+    # Temporarily disabled during the high-churn period of 3.10
+    # E.g.: https://github.com/MagicStack/immutables/issues/46
     #- python: nightly
 
 script:

@@ -154,13 +154,13 @@ async def test_shielding(autojump_clock: trio.testing.MockClock) -> None:
 
     async def shield_child_after_parent_unshielded() -> None:
         with parent.open_child(shield=True) as child:
-            this_task = trio.hazmat.current_task()
+            this_task = trio.lowlevel.current_task()
 
             def abort_fn(_):  # type: ignore
-                trio.hazmat.reschedule(this_task)
-                return trio.hazmat.Abort.FAILED
+                trio.lowlevel.reschedule(this_task)
+                return trio.lowlevel.Abort.FAILED
 
-            await trio.hazmat.wait_task_rescheduled(abort_fn)
+            await trio.lowlevel.wait_task_rescheduled(abort_fn)
             child.shield = True
             await trio.sleep(0.5)
         assert not child.cancelled_caught

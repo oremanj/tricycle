@@ -1,7 +1,7 @@
 import abc
 import functools
 from async_generator import asynccontextmanager
-from trio_typing import Nursery
+from trio import Nursery
 from typing import (
     Any,
     AsyncIterator,
