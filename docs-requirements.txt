@@ -11,16 +11,14 @@ babel==2.7.0              # via sphinx
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via towncrier
-contextvars==2.4          # via sniffio, trio
 docutils==0.15.2          # via sphinx
 idna==2.8                 # via requests, trio
 imagesize==1.1.0          # via sphinx
-immutables==0.11          # via contextvars
 incremental==17.5.0       # via towncrier
 jinja2==2.10.3            # via sphinx, towncrier
 markupsafe==1.1.1         # via jinja2
 mypy-extensions==0.4.3    # via mypy, trio-typing
-mypy==0.750               # via trio-typing
+mypy==0.782               # via trio-typing
 outcome==1.0.1            # via trio
 packaging==19.2           # via sphinx
 pygments==2.5.2           # via sphinx
@@ -31,19 +29,19 @@ six==1.13.0               # via packaging
 sniffio==1.1.0            # via trio
 snowballstemmer==2.0.0    # via sphinx
 sortedcontainers==2.1.0   # via trio
-sphinx-rtd-theme==0.4.3
-sphinx==2.2.2
+sphinx-rtd-theme==0.4.3   # via -r docs-requirements.in
+sphinx==2.2.2             # via -r docs-requirements.in, sphinx-rtd-theme, sphinxcontrib-trio
 sphinxcontrib-applehelp==1.0.1  # via sphinx
 sphinxcontrib-devhelp==1.0.1  # via sphinx
 sphinxcontrib-htmlhelp==1.0.2  # via sphinx
 sphinxcontrib-jsmath==1.0.1  # via sphinx
 sphinxcontrib-qthelp==1.0.2  # via sphinx
 sphinxcontrib-serializinghtml==1.1.3  # via sphinx
-sphinxcontrib-trio==1.1.0
+sphinxcontrib-trio==1.1.0  # via -r docs-requirements.in
 toml==0.10.0              # via towncrier
-towncrier==19.2.0
-trio-typing==0.3.0
-trio==0.13.0
+towncrier==19.2.0         # via -r docs-requirements.in
+trio-typing==0.5.0        # via -r docs-requirements.in
+trio==0.17.0              # via -r docs-requirements.in, trio-typing
 typed-ast==1.4.0          # via mypy
 typing-extensions==3.7.4.1  # via mypy, trio-typing
 urllib3==1.25.7           # via requests
