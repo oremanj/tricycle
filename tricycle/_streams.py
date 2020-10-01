@@ -55,7 +55,7 @@ class BufferedReceiveStream(trio.abc.AsyncResource):
                     break  # EOF
                 self._buffer.extend(data)
         else:
-            await trio.hazmat.checkpoint()
+            await trio.lowlevel.checkpoint()
 
         data = self._buffer[self._receive_pos : self._receive_pos + num_bytes]
         self._receive_pos += len(data)
@@ -272,7 +272,7 @@ class TextReceiveStream(trio.abc.AsyncResource):
 
         """
 
-        await trio.hazmat.checkpoint_if_cancelled()
+        await trio.lowlevel.checkpoint_if_cancelled()
 
         got_more = False
         line_end_pos = None
@@ -356,7 +356,7 @@ class TextReceiveStream(trio.abc.AsyncResource):
         if not got_more:
             # If we never called receive_some(), we only did half a checkpoint,
             # and need to do the other half before returning.
-            await trio.hazmat.cancel_shielded_checkpoint()
+            await trio.lowlevel.cancel_shielded_checkpoint()
 
         ret = self._chunk[self._chunk_pos : line_end_pos]
         self._chunk_pos = line_end_pos

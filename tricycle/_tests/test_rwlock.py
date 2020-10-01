@@ -41,11 +41,11 @@ async def test_rwlock(autojump_clock: trio.testing.MockClock) -> None:
     acquire_times: List[Optional[float]] = [None] * 10
 
     async def holder_task(
-        for_write: bool, task_status: TaskStatus[trio.hazmat.Task]
+        for_write: bool, task_status: TaskStatus[trio.lowlevel.Task]
     ) -> None:
         my_slot = next(start_order)
         repr(lock)  # smoke test
-        task_status.started(trio.hazmat.current_task())
+        task_status.started(trio.lowlevel.current_task())
         await lock.acquire(for_write=for_write)
         acquire_times[my_slot] = trio.current_time()
         try:
@@ -150,9 +150,9 @@ async def test_read_biased(autojump_clock: trio.testing.MockClock) -> None:
     assert lock.read_biased
 
     async def holder_task(
-        for_write: bool, task_status: TaskStatus[trio.hazmat.Task]
+        for_write: bool, task_status: TaskStatus[trio.lowlevel.Task]
     ) -> None:
-        task_status.started(trio.hazmat.current_task())
+        task_status.started(trio.lowlevel.current_task())
         await lock.acquire(for_write=for_write)
         try:
             await trio.sleep(1)
