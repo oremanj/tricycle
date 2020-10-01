@@ -1,8 +1,7 @@
 # Testing
-pytest
+pytest >= 5.0
 pytest-cov
-pytest-trio
-pytest-faulthandler
+pytest-trio >= 0.6.0
 
 # Tools
 black == 19.10b0; implementation_name == "cpython"

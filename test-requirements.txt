@@ -17,7 +17,7 @@ mccabe==0.6.1             # via flake8
 more-itertools==8.0.2     # via pytest
 mypy-extensions==0.4.3    # via mypy, trio-typing
 mypy==0.782 ; implementation_name == "cpython"  # via -r test-requirements.in, trio-typing
-outcome==1.0.1            # via trio
+outcome==1.0.1            # via pytest-trio, trio
 packaging==19.2           # via pytest
 pathspec==0.6.0           # via black
 pluggy==0.13.1            # via pytest
@@ -26,9 +26,8 @@ pycodestyle==2.5.0        # via flake8
 pyflakes==2.1.1           # via flake8
 pyparsing==2.4.5          # via packaging
 pytest-cov==2.8.1         # via -r test-requirements.in
-pytest-faulthandler==2.0.1  # via -r test-requirements.in
-pytest-trio==0.5.2        # via -r test-requirements.in
-pytest==5.3.1             # via -r test-requirements.in, pytest-cov, pytest-faulthandler, pytest-trio
+pytest-trio==0.6.0        # via -r test-requirements.in
+pytest==5.3.1             # via -r test-requirements.in, pytest-cov, pytest-trio
 regex==2019.12.9          # via black
 six==1.13.0               # via packaging
 sniffio==1.1.0            # via trio
