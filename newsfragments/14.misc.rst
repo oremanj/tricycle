@@ -1,0 +1,3 @@
+tricycle now explicitly re-exports all names, improving PEP-561 compliance and
+allowing type checkers that enforce export strictness (including mypy with
+``--no-implicit-reexport``) to check code using tricycle
