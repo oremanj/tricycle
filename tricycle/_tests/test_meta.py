@@ -1,5 +1,5 @@
 import attr
-import pytest  # type: ignore
+import pytest
 import types
 import trio
 import trio.testing

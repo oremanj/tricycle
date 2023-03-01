@@ -1,4 +1,4 @@
-import pytest  # type: ignore
+import pytest
 import locale
 import random
 import sys
@@ -97,7 +97,7 @@ async def test_buffered_receive(autojump_clock: trio.testing.MockClock) -> None:
     await receive_stream.aclose()
 
 
-@pytest.fixture  # type: ignore  # "Untyped decorator makes ... untyped"
+@pytest.fixture
 async def receiver_factory() -> AsyncIterator[
     Callable[[], AsyncContextManager[BufferedReceiveStream]]
 ]:
@@ -206,7 +206,6 @@ async def test_text_receive(autojump_clock: trio.testing.MockClock) -> None:
                 ]
             ]
         ) -> Streams:
-
             send_stream, receive_stream_raw = trio.testing.memory_stream_one_way_pair()
             receive_stream = TextReceiveStream(
                 receive_stream_raw, "UTF-8", chunk_size=8, newline=newline
