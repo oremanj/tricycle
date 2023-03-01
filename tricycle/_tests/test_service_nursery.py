@@ -1,4 +1,4 @@
-import pytest  # type: ignore
+import pytest
 from typing import Any
 from trio_typing import TaskStatus
 
@@ -104,6 +104,6 @@ async def test_problems() -> None:
             else:
                 return trio.sleep(0)
 
-        with pytest.raises(trio.TrioInternalError) as info:
+        with pytest.raises(trio.TrioInternalError) as info2:
             nursery.start_soon(evil)
-        assert "all bets are off at this point" in str(info.value)
+        assert "all bets are off at this point" in str(info2.value)

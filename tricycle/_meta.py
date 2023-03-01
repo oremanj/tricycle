@@ -53,9 +53,7 @@ class ScopedObjectMeta(abc.ABCMeta):
             dct["__wrap__"] = wrap
 
         # NB: wrap() closes over this 'cls' variable
-        cls: ScopedObjectMeta = super().__new__(  # type: ignore
-            mcls, clsname, bases, dct, **kwargs
-        )
+        cls: ScopedObjectMeta = super().__new__(mcls, clsname, bases, dct, **kwargs)
         return cls
 
     @asynccontextmanager
@@ -158,7 +156,7 @@ class BackgroundObject(ScopedObject):
 
     def __init_subclass__(cls, *, daemon: bool = False, **kwargs: Any):
         cls.__daemon = daemon
-        super().__init_subclass__(**kwargs)  # type: ignore
+        super().__init_subclass__(**kwargs)
 
     @asynccontextmanager
     async def __wrap__(self) -> AsyncIterator[None]:

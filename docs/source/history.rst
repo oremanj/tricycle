@@ -5,6 +5,14 @@ Release history
 
 .. towncrier release notes start
 
+tricycle 0.2.2 (2023-03-01)
+---------------------------
+
+* tricycle now explicitly re-exports all names, improving PEP-561 compliance and
+  allowing type checkers that enforce export strictness (including mypy with
+  ``--no-implicit-reexport``) to check code using tricycle.
+  `#14 <https://github.com/oremanj/tricycle/issues/14>`__
+
 tricycle 0.2.1 (2020-09-30)
 ---------------------------
 
