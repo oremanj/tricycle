@@ -8,6 +8,7 @@ from ._streams import (
 from ._multi_cancel import MultiCancelScope as MultiCancelScope
 from ._service_nursery import open_service_nursery as open_service_nursery
 from ._meta import ScopedObject as ScopedObject, BackgroundObject as BackgroundObject
+from ._tree_var import TreeVar as TreeVar, TreeVarToken as TreeVarToken
 
 # watch this space...
 

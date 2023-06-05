@@ -214,3 +214,78 @@ from above would reduce to::
     async def use_websocket():
         async with WebsocketConnection(**etc) as conn:
             await conn.send("Hi!")
+
+
+.. _tree-variables:
+
+Tree variables
+--------------
+
+When you start a new Trio task, the initial values of its `context variables
+<https://trio.readthedocs.io/en/stable/reference-core.html#task-local-storage>`__
+(`contextlib.ContextVar`) are inherited from the environment of the
+`~trio.Nursery.start_soon` or `~trio.Nursery.start` call that
+started the new task. For example, this code:
+
+.. code-block:: python3
+
+   some_cvar = contextvars.ContextVar()
+
+   async def print_in_child(tag):
+       print("In child", tag, "some_cvar has value", some_cvar.get())
+
+   some_cvar.set(1)
+   async with trio.open_nursery() as nursery:
+       nursery.start_soon(print_in_child, 1)
+       some_cvar.set(2)
+       nursery.start_soon(print_in_child, 2)
+       some_cvar.set(3)
+       print("In parent some_cvar has value", some_cvar.get())
+
+will produce output like::
+
+    In parent some_cvar has value 3
+    In child 1 some_cvar has value 1
+    In child 2 some_cvar has value 2
+
+(If you run it yourself, you might find that the "child 2" line comes
+before "child 1", but it will still be the case that child 1 sees value 1
+while child 2 sees value 2.)
+
+You might wonder why this differs from the behavior of cancel scopes,
+which only apply to a new task if they surround the new task's entire
+nursery (as explained in the Trio documentation about
+`child tasks and cancellation <https://trio.readthedocs.io/en/stable/reference-core.html#child-tasks-and-cancellation>`__). The difference is that a cancel
+scope has a limited lifetime (it can't cancel anything once you exit
+its ``with`` block), while a context variable's value is just a value
+(request #42 can keep being request #42 for as long as it likes,
+without any cooperation from the task that created it).
+
+In specialized cases, you might want to provide a task-local value
+that's inherited only from the parent nursery, like cancel scopes are.
+For example, maybe you're trying to provide child tasks with access to
+a limited-lifetime resource such as a nursery or network connection,
+and you only want a task to be able to use the resource if it's going
+to remain available for the task's entire lifetime. You can support
+this use case using `TreeVar`, which is like `contextvars.ContextVar`
+except for the way that it's inherited by new tasks. (It's a "tree"
+variable because it's inherited along the parent-child links that form
+the Trio task tree.)
+
+If the above example used `TreeVar`, then its output would be:
+
+.. code-block:: none
+   :emphasize-lines: 3
+
+   In parent some_cvar has value 3
+   In child 1 some_cvar has value 1
+   In child 2 some_cvar has value 1
+
+because child 2 would inherit the value from its parent nursery, rather than
+from the environment of the ``start_soon()`` call that creates it.
+
+.. autoclass:: tricycle.TreeVar(name, [*, default])
+
+   .. automethod:: being
+      :with:
+   .. automethod:: get_in(task_or_nursery, [default])
