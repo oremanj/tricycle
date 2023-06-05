@@ -1,6 +1,6 @@
 import attr
 import trio
-from async_generator import asynccontextmanager
+from contextlib import asynccontextmanager
 from collections import OrderedDict
 from typing import (
     AsyncIterator,

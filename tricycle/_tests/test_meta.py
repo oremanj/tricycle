@@ -3,7 +3,7 @@ import pytest
 import types
 import trio
 import trio.testing
-from async_generator import asynccontextmanager
+from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator, Coroutine, Iterator, List
 from trio_typing import TaskStatus
 

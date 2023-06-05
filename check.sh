@@ -5,8 +5,10 @@ set -ex
 EXIT_STATUS=0
 
 # Autoformatter *first*, to avoid double-reporting errors
-black --check setup.py tricycle \
-    || EXIT_STATUS=$?
+if ! black --check setup.py tricycle; then
+    EXIT_STATUS=1
+    black --diff setup.py tricycle
+fi
 
 # Run flake8 without pycodestyle and import-related errors
 flake8 tricycle/ \

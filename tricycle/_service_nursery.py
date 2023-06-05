@@ -3,7 +3,7 @@ import collections
 import trio
 from trio_typing import TaskStatus
 from functools import partial
-from async_generator import asynccontextmanager
+from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator, Awaitable, Callable, Optional, overload
 from ._multi_cancel import MultiCancelScope
 
