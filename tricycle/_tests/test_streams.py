@@ -5,9 +5,10 @@ import sys
 
 import trio
 import trio.testing
-from async_generator import asynccontextmanager
+from contextlib import asynccontextmanager
 from functools import partial
 from typing import (
+    AsyncContextManager,
     AsyncIterator,
     Awaitable,
     Callable,
@@ -17,7 +18,6 @@ from typing import (
     Tuple,
     cast,
 )
-from typing_extensions import AsyncContextManager
 from .. import BufferedReceiveStream, TextReceiveStream
 
 

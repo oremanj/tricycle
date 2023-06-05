@@ -1,6 +1,6 @@
 import abc
 import functools
-from async_generator import asynccontextmanager
+from contextlib import asynccontextmanager
 from trio import Nursery
 from typing import (
     Any,

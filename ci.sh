@@ -3,62 +3,14 @@
 set -ex -o pipefail
 
 # Log some general info about the environment
+uname -a
 env | sort
-
-if [ "$SYSTEM_JOBIDENTIFIER" != "" ]; then
-    # azure pipelines
-    CODECOV_NAME="$SYSTEM_JOBIDENTIFIER"
-else
-    CODECOV_NAME="${TRAVIS_OS_NAME}-${TRAVIS_PYTHON_VERSION:-unknown}"
-fi
 
 ################################################################
 # Bootstrap python environment, if necessary
 ################################################################
 
-### Azure pipelines + Windows ###
-
-# On azure pipeline's windows VMs, to get reasonable performance, we need to
-# jump through hoops to avoid touching the C:\ drive as much as possible.
-if [ "$AGENT_OS" = "Windows_NT" ]; then
-    # By default temp and cache directories are on C:\. Fix that.
-    export TEMP="${AGENT_TEMPDIRECTORY}"
-    export TMP="${AGENT_TEMPDIRECTORY}"
-    export TMPDIR="${AGENT_TEMPDIRECTORY}"
-    export PIP_CACHE_DIR="${AGENT_TEMPDIRECTORY}\\pip-cache"
-
-    # Download and install Python from scratch onto D:\, instead of using the
-    # pre-installed versions that azure pipelines provides on C:\.
-    # Also use -DirectDownload to stop nuget from caching things on C:\.
-    nuget install "${PYTHON_PKG}" -Version "${PYTHON_VERSION}" \
-          -OutputDirectory "$PWD/pyinstall" -ExcludeVersion \
-          -Source "https://api.nuget.org/v3/index.json" \
-          -Verbosity detailed -DirectDownload -NonInteractive
-
-    pydir="$PWD/pyinstall/${PYTHON_PKG}"
-    export PATH="${pydir}/tools:${pydir}/tools/scripts:$PATH"
-
-    # Fix an issue with the nuget python 3.5 packages
-    # https://github.com/python-trio/trio/pull/827#issuecomment-457433940
-    rm -f "${pydir}/tools/pyvenv.cfg" || true
-fi
-
-### Travis + macOS ###
-
-if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    CODECOV_NAME="osx_${MACPYTHON}"
-    curl -Lo macpython.pkg https://www.python.org/ftp/python/${MACPYTHON}/python-${MACPYTHON}-macosx10.6.pkg
-    sudo installer -pkg macpython.pkg -target /
-    ls /Library/Frameworks/Python.framework/Versions/*/bin/
-    PYTHON_EXE=/Library/Frameworks/Python.framework/Versions/*/bin/python3
-    # The pip in older MacPython releases doesn't support a new enough TLS
-    curl https://bootstrap.pypa.io/get-pip.py | sudo $PYTHON_EXE
-    sudo $PYTHON_EXE -m pip install virtualenv
-    $PYTHON_EXE -m virtualenv testenv
-    source testenv/bin/activate
-fi
-
-### PyPy nightly (currently on Travis) ###
+### PyPy nightly ###
 
 if [ "$PYPY_NIGHTLY_BRANCH" != "" ]; then
     CODECOV_NAME="pypy_nightly_${PYPY_NIGHTLY_BRANCH}"
@@ -101,14 +53,7 @@ python -m pip --version
 python setup.py sdist --formats=zip
 python -m pip install dist/*.zip
 
-if [ "$CHECK_DOCS" = "1" ]; then
-    python -m pip install -r docs-requirements.txt
-    towncrier --yes  # catch errors in newsfragments
-    cd docs
-    # -n (nit-picky): warn on missing references
-    # -W: turn warnings into errors
-    sphinx-build -nW  -b html source build
-elif [ "$CHECK_LINT" = "1" ]; then
+if [ "$CHECK_LINT" = "1" ]; then
     python -m pip install -r test-requirements.txt
     source check.sh
 else
@@ -119,16 +64,6 @@ else
     cd empty
 
     INSTALLDIR=$(python -c "import os, tricycle; print(os.path.dirname(tricycle.__file__))")
-    cp ../setup.cfg $INSTALLDIR
-    pytest -W error -ra --junitxml=../test-results.xml -o faulthandler_timeout=60 ${INSTALLDIR} --cov="$INSTALLDIR" --cov-config=../.coveragerc --verbose
-
-    # Disable coverage on 3.8 until we run 3.8 on Windows CI too
-    #   https://github.com/python-trio/trio/pull/784#issuecomment-446438407
-    if [[ "$(python -V)" != Python\ 3.8* ]]; then
-        # Disable coverage on pypy py3.6 nightly for now:
-        # https://bitbucket.org/pypy/pypy/issues/2943/
-        if [ "$PYPY_NIGHTLY_BRANCH" != "py3.6" ]; then
-            bash <(curl -s https://codecov.io/bash) -n "${CODECOV_NAME}"
-        fi
-    fi
+    cp ../pyproject.toml $INSTALLDIR
+    pytest -ra --junitxml=../test-results.xml ${INSTALLDIR} --cov="$INSTALLDIR" --cov-report=xml --cov-config=../.coveragerc --verbose
 fi

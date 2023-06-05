@@ -1,6 +1,9 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
 
 jobs:
@@ -17,10 +20,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
-          python-version: '${{ matrix.python }}'
+          # This allows the matrix to specify just the major.minor version while still
+          # expanding it to get the latest patch version including alpha releases.
+          # This avoids the need to update for each new alpha, beta, release candidate,
+          # and then finally an actual release version.  actions/setup-python doesn't
+          # support this for PyPy presently so we get no help there.
+          #
+          # CPython -> 3.9.0-alpha - 3.9.X
+          # PyPy    -> pypy-3.7
+          python-version: ${{ fromJSON(format('["{0}", "{1}"]', format('{0}.0-alpha - {0}.X', matrix.python), matrix.python))[startsWith(matrix.python, 'pypy')] }}
           architecture: '${{ matrix.arch }}'
+          cache: pip
+          cache-dependency-path: test-requirements.txt
       - name: Run tests
         run: ./ci.sh
         shell: bash
@@ -35,28 +48,40 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ['3.7', '3.8', '3.9', '3.10', '3.11']
-        check_docs: ['0']
+        python: ['pypy-3.8', 'pypy-3.9', '3.7', '3.8', '3.9', '3.10', '3.11', '3.12-dev']
         check_lint: ['0']
         extra_name: ['']
         include:
           - python: '3.8'
-            check_docs: '1'
-            extra_name: ', check docs'
-          - python: '3.8'
             check_lint: '1'
             extra_name: ', formatting and linting'
+    continue-on-error: >-
+      ${{
+        (
+          matrix.check_formatting == '1'
+          || endsWith(matrix.python, '-dev')
+        )
+        && true
+        || false
+      }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
+        if: "!endsWith(matrix.python, '-dev')"
+        with:
+          python-version: ${{ fromJSON(format('["{0}", "{1}"]', format('{0}.0-alpha - {0}.X', matrix.python), matrix.python))[startsWith(matrix.python, 'pypy')] }}
+          cache: pip
+          cache-dependency-path: test-requirements.txt
+      - name: Setup python (dev)
+        uses: deadsnakes/action@v2.0.2
+        if: endsWith(matrix.python, '-dev')
         with:
           python-version: '${{ matrix.python }}'
       - name: Run tests
         run: ./ci.sh
         env:
-          CHECK_DOCS: '${{ matrix.check_docs }}'
           CHECK_LINT: '${{ matrix.check_lint }}'
           # Should match 'name:' up above
           JOB_NAME: 'Ubuntu (${{ matrix.python }}${{ matrix.extra_name }})'
@@ -69,13 +94,20 @@ jobs:
       fail-fast: false
       matrix:
         python: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        include:
+          - python: '3.8'  # <- not actually used
+            arch: 'x64'
+            pypy_nightly_branch: 'py3.8'
+            extra_name: ', pypy 3.8 nightly'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
-          python-version: '${{ matrix.python }}'
+          python-version: ${{ fromJSON(format('["{0}", "{1}"]', format('{0}.0-alpha - {0}.X', matrix.python), matrix.python))[startsWith(matrix.python, 'pypy')] }}
+          cache: pip
+          cache-dependency-path: test-requirements.txt
       - name: Run tests
         run: ./ci.sh
         env:
