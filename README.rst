@@ -5,13 +5,13 @@ tricycle: experimental extensions for Trio
    :target: https://pypi.org/project/tricycle
    :alt: Latest PyPI version
 
+.. image:: https://github.com/oremanj/tricycle/actions/workflows/ci.yml/badge.svg
+   :target: https://github.com/oremanj/tricycle/actions/workflows/ci.yml
+   :alt: Automated test status
+
 .. image:: https://img.shields.io/badge/docs-read%20now-blue.svg
    :target: https://tricycle.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation status
-
-.. image:: https://travis-ci.org/oremanj/tricycle.svg?branch=master
-   :target: https://travis-ci.org/oremanj/tricycle
-   :alt: Automated test status
 
 .. image:: https://codecov.io/gh/oremanj/tricycle/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/oremanj/tricycle

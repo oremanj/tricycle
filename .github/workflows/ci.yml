@@ -40,6 +40,11 @@ jobs:
         env:
           # Should match 'name:' up above
           JOB_NAME: 'Windows (${{ matrix.python }}, ${{ matrix.arch }}${{ matrix.extra_name }})'
+      - uses: codecov/codecov-action@v3
+        with:
+          directory: empty
+          name: 'Windows (${{ matrix.python }}, ${{ matrix.arch }})'
+          flags: Windows,${{ matrix.python }}
 
   Ubuntu:
     name: 'Ubuntu (${{ matrix.python }}${{ matrix.extra_name }})'
@@ -85,6 +90,11 @@ jobs:
           CHECK_LINT: '${{ matrix.check_lint }}'
           # Should match 'name:' up above
           JOB_NAME: 'Ubuntu (${{ matrix.python }}${{ matrix.extra_name }})'
+      - uses: codecov/codecov-action@v3
+        with:
+          directory: empty
+          name: 'Ubuntu (${{ matrix.python }}${{ matrix.extra_name }})'
+          flags: Ubuntu,${{ matrix.python }}
 
   macOS:
     name: 'macOS (${{ matrix.python }})'
@@ -113,3 +123,8 @@ jobs:
         env:
           # Should match 'name:' up above
           JOB_NAME: 'macOS (${{ matrix.python }})'
+      - uses: codecov/codecov-action@v3
+        with:
+          directory: empty
+          name: 'macOS (${{ matrix.python }})'
+          flags: macOS,${{ matrix.python }}
