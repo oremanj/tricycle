@@ -5,6 +5,17 @@ Release history
 
 .. towncrier release notes start
 
+tricycle 0.3.0 (2023-06-05)
+---------------------------
+
+* Added `tricycle.TreeVar`, which acts like a context variable that is
+  inherited at nursery creation time (and then by child tasks of that
+  nursery) rather than at task creation time. :ref:`Tree variables
+  <tree-variables>` are useful for providing safe 'ambient' access to a
+  resource that is tied to an ``async with`` block in the parent task,
+  such as an open file or trio-asyncio event loop. (`#18 <https://github.com/oremanj/tricycle/issues/18>`__)
+
+
 tricycle 0.2.2 (2023-03-01)
 ---------------------------
 
