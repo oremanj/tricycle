@@ -44,7 +44,11 @@ nitpick_ignore = [
     ("py:obj", "bytes-like"),
     ("py:class", "None"),
     ("py:exc", "Anything else"),
+    ("py:class", "tricycle._rwlock._RWLockStatistics"),
+    ("py:class", "tricycle._tree_var.T"),
+    ("py:class", "tricycle._tree_var.U"),
 ]
+default_role = "obj"
 
 # -- General configuration ------------------------------------------------
 
@@ -104,7 +108,7 @@ release = version
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

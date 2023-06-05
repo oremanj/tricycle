@@ -223,7 +223,7 @@ Tree variables
 
 When you start a new Trio task, the initial values of its `context variables
 <https://trio.readthedocs.io/en/stable/reference-core.html#task-local-storage>`__
-(`contextlib.ContextVar`) are inherited from the environment of the
+(`contextvars.ContextVar`) are inherited from the environment of the
 `~trio.Nursery.start_soon` or `~trio.Nursery.start` call that
 started the new task. For example, this code:
 

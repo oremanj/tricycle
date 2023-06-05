@@ -66,7 +66,7 @@ def trivial_abort(_: object) -> trio.lowlevel.Abort:
     return trio.lowlevel.Abort.SUCCEEDED  # pragma: no cover
 
 
-async def test_treevar_follows_eventual_parent():
+async def test_treevar_follows_eventual_parent() -> None:
     tv1 = TreeVar[str]("tv1")
 
     async def manage_target(task_status: TaskStatus[trio.Nursery]) -> None:
@@ -106,7 +106,7 @@ async def test_treevar_token_bound_to_task_that_obtained_it() -> None:
     tv1 = TreeVar[int]("tv1")
     token: Optional[TreeVarToken[int]] = None
 
-    async def get_token():
+    async def get_token() -> None:
         nonlocal token
         token = tv1.set(10)
         try:
@@ -141,4 +141,4 @@ def test_treevar_outside_run() -> None:
         tv1.being(40).__enter__,
     ):
         with pytest.raises(RuntimeError, match="must be called from async context"):
-            operation()
+            operation()  # type: ignore

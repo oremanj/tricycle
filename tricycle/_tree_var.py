@@ -5,7 +5,17 @@ import contextvars
 import trio
 import weakref
 from contextlib import contextmanager
-from typing import TypeVar, Generic, Any, MutableMapping, cast, overload
+from typing import (
+    TypeVar,
+    Generic,
+    Any,
+    Iterator,
+    MutableMapping,
+    Optional,
+    Union,
+    cast,
+    overload,
+)
 
 T = TypeVar("T")
 U = TypeVar("U")
@@ -106,7 +116,7 @@ class TreeVar(Generic[T]):
         self,
         for_task: trio.lowlevel.Task,
         current_task: Optional[trio.lowlevel.Task],
-    ) -> None:
+    ) -> _TreeVarState[T]:
         """Return the _TreeVarState associated with *for_task*, inheriting
         it from a parent nursery if necessary.
         """
@@ -190,9 +200,7 @@ class TreeVar(Generic[T]):
             self.reset(token)
 
     @overload
-    def get_in(
-        self, task_or_nursery: Union[trio.lowlevel.Task, trio.Nursery]
-    ) -> T:
+    def get_in(self, task_or_nursery: Union[trio.lowlevel.Task, trio.Nursery]) -> T:
         ...
 
     @overload
@@ -224,6 +232,7 @@ class TreeVar(Generic[T]):
         if task is task_or_nursery:
             result = state.value_for_task
         else:
+            assert isinstance(task_or_nursery, trio.Nursery)
             result = state.value_for_children.get(task_or_nursery, state.value_for_task)
         if result is not MISSING:
             return result
