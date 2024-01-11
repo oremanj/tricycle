@@ -2,5 +2,4 @@ sphinx >= 1.7.0
 sphinx_rtd_theme
 sphinxcontrib-trio
 towncrier
-trio >= 0.15.0
-trio-typing >= 0.5.0
+trio >= 0.23.0

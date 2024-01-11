@@ -4,8 +4,7 @@ import types
 import trio
 import trio.testing
 from contextlib import asynccontextmanager
-from typing import Any, AsyncIterator, Coroutine, Iterator, List
-from trio_typing import TaskStatus
+from typing import AsyncIterator, Coroutine, Iterator, List
 
 from .. import ScopedObject, BackgroundObject
 
@@ -109,7 +108,7 @@ class Example(BackgroundObject):
         self.record.append("close")
         self.exiting = True
 
-    async def _background_task(self, *, task_status: TaskStatus[None]) -> None:
+    async def _background_task(self, *, task_status: trio.TaskStatus[None]) -> None:
         self.record.append("background")
         await trio.sleep(1)
         self.record.append("starting")

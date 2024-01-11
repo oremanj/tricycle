@@ -36,7 +36,7 @@ cleanliness and good test coverage, please be advised that
 good idea at the time, and should be treated with according skepticism
 if you're contemplating using it in production. It hasn't necessarily
 been reviewed or tested to Trio's standards, it supports at minimum
-Python 3.7, and some features might not be available on PyPy or on
+Python 3.8, and some features might not be available on PyPy or on
 Windows.
 
 * If you find that it meets your needs, you're welcome to use it. We'll
