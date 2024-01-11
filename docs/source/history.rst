@@ -5,6 +5,15 @@ Release history
 
 .. towncrier release notes start
 
+tricycle 0.4.0 (2024-01-11)
+---------------------------
+
+* tricycle now requires Python 3.8 and Trio 0.23.0 or greater.
+
+* tricycle no longer depends on the ``trio-typing`` library, since Trio now
+  has upstream support for type hints.
+
+
 tricycle 0.3.0 (2023-06-05)
 ---------------------------
 
