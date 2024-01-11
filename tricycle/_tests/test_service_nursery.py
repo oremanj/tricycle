@@ -1,6 +1,5 @@
 import pytest
 from typing import Any
-from trio_typing import TaskStatus
 
 import trio
 import trio.testing
@@ -35,7 +34,7 @@ async def test_basic(autojump_clock: trio.testing.MockClock) -> None:
 async def test_start(autojump_clock: trio.testing.MockClock) -> None:
     record = []
 
-    async def sleep_then_start(val: int, *, task_status: TaskStatus[int]) -> None:
+    async def sleep_then_start(val: int, *, task_status: trio.TaskStatus[int]) -> None:
         await trio.sleep(1)
         task_status.started(val)
         try:
@@ -44,7 +43,7 @@ async def test_start(autojump_clock: trio.testing.MockClock) -> None:
         finally:
             record.append("background task exiting")
 
-    async def shielded_sleep_then_start(*, task_status: TaskStatus[None]) -> None:
+    async def shielded_sleep_then_start(*, task_status: trio.TaskStatus[None]) -> None:
         with trio.CancelScope(shield=True):
             await trio.sleep(1)
         task_status.started()

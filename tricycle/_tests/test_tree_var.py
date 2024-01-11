@@ -2,7 +2,6 @@ import pytest
 import trio
 import trio.testing
 from functools import partial
-from trio_typing import TaskStatus
 from typing import Optional, Any, cast
 
 from .. import TreeVar, TreeVarToken
@@ -69,7 +68,7 @@ def trivial_abort(_: object) -> trio.lowlevel.Abort:
 async def test_treevar_follows_eventual_parent() -> None:
     tv1 = TreeVar[str]("tv1")
 
-    async def manage_target(task_status: TaskStatus[trio.Nursery]) -> None:
+    async def manage_target(task_status: trio.TaskStatus[trio.Nursery]) -> None:
         assert tv1.get() == "source nursery"
         with tv1.being("target nursery"):
             assert tv1.get() == "target nursery"
@@ -84,7 +83,7 @@ async def test_treevar_follows_eventual_parent() -> None:
         assert tv1.get() == "source nursery"
 
     async def verify(
-        value: str, *, task_status: TaskStatus[None] = trio.TASK_STATUS_IGNORED
+        value: str, *, task_status: trio.TaskStatus[None] = trio.TASK_STATUS_IGNORED
     ) -> None:
         assert tv1.get() == value
         task_status.started()

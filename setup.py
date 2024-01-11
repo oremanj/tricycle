@@ -15,7 +15,7 @@ setup(
     license="MIT -or- Apache License 2.0",
     packages=find_packages(),
     include_package_data=True,
-    install_requires=["trio >= 0.15.0", "trio-typing >= 0.5.0"],
+    install_requires=["trio >= 0.23.0"],
     keywords=["async", "trio"],
     python_requires=">=3.8",
     classifiers=[

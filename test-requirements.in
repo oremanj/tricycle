@@ -12,5 +12,4 @@ flake8 < 6.0.0
 # Project dependencies
 attrs >= 19.2.0
 async_generator >= 1.9
-trio >= 0.15.0
-trio-typing >= 0.5.0
+trio >= 0.23.0

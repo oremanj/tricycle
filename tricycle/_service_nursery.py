@@ -1,10 +1,8 @@
-import attr
 import collections
 import trio
-from trio_typing import TaskStatus
 from functools import partial
 from contextlib import asynccontextmanager
-from typing import Any, AsyncIterator, Awaitable, Callable, Optional, overload
+from typing import Any, AsyncIterator, Awaitable, Callable, Optional
 from ._multi_cancel import MultiCancelScope
 
 
@@ -112,7 +110,7 @@ async def open_service_nursery() -> AsyncIterator[trio.Nursery]:
             *args: Any,
             name: Optional[str] = None,
         ) -> Any:
-            async def wrap_child(*, task_status: TaskStatus[Any]) -> None:
+            async def wrap_child(*, task_status: trio.TaskStatus[Any]) -> None:
                 # For start(), the child doesn't get shielded until it
                 # calls task_status.started().
                 shield_scope = child_task_scopes.open_child(shield=False)
