@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ['pypy-3.8', 'pypy-3.9', '3.8', '3.9', '3.10', '3.11', '3.12', '3.13-dev']
+        python: ['pypy-3.8', 'pypy-3.9', '3.8', '3.9', '3.10', '3.11', '3.12']
         check_lint: ['0']
         extra_name: ['']
         include:
@@ -103,7 +103,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
         include:
           - python: '3.8'  # <- not actually used
             arch: 'x64'
