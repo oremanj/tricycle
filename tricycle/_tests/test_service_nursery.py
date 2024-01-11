@@ -82,7 +82,7 @@ async def test_start(autojump_clock: trio.testing.MockClock) -> None:
 async def test_problems() -> None:
     async with open_service_nursery() as nursery:
         with pytest.raises(TypeError) as info:
-            nursery.start_soon(trio.sleep)
+            nursery.start_soon(trio.sleep)  # type: ignore[arg-type]
         assert "missing 1 required positional argument" in str(info.value)
 
         with pytest.raises(TypeError) as info:
