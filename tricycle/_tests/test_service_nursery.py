@@ -79,6 +79,37 @@ async def test_start(autojump_clock: trio.testing.MockClock) -> None:
     assert record == ["parent task finished", "background task exiting"]
 
 
+async def test_remote_start(autojump_clock: trio.testing.MockClock) -> None:
+    record = []
+    outer_task_status: trio.TaskStatus[int]
+
+    async def task(*, task_status: trio.TaskStatus[int]) -> None:
+        nonlocal outer_task_status
+        outer_task_status = task_status
+        try:
+            await trio.sleep(10)
+            record.append("background task finished")  # pragma: no cover
+        finally:
+            record.append("background task exiting")
+
+    async def delayed_start() -> None:
+        await trio.sleep(1)
+        outer_task_status.started()
+
+    async with trio.open_nursery() as outer_nursery:
+        outer_nursery.start_soon(delayed_start)
+        async with open_service_nursery() as inner_nursery:
+            await inner_nursery.start(task)
+            assert trio.current_time() == 1.0
+            outer_nursery.cancel_scope.cancel()
+            with trio.CancelScope(shield=True):
+                await trio.sleep(1)
+            record.append("parent task finished")
+
+    assert trio.current_time() == 2.0
+    assert record == ["parent task finished", "background task exiting"]
+
+
 async def test_problems() -> None:
     async with open_service_nursery() as nursery:
         with pytest.raises(TypeError) as info:
