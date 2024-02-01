@@ -94,12 +94,12 @@ async def test_remote_start(autojump_clock: trio.testing.MockClock) -> None:
 
     async def delayed_start() -> None:
         await trio.sleep(1)
-        outer_task_status.started()
+        outer_task_status.started(42)
 
     async with trio.open_nursery() as outer_nursery:
         outer_nursery.start_soon(delayed_start)
         async with open_service_nursery() as inner_nursery:
-            await inner_nursery.start(task)
+            assert 42 == await inner_nursery.start(task)
             assert trio.current_time() == 1.0
             outer_nursery.cancel_scope.cancel()
             with trio.CancelScope(shield=True):
