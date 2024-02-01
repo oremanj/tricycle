@@ -114,10 +114,11 @@ async def open_service_nursery() -> AsyncIterator[trio.Nursery]:
                 # For start(), the child doesn't get shielded until it
                 # calls task_status.started().
                 shield_scope = child_task_scopes.open_child(shield=False)
+                child_task = trio.lowlevel.current_task()
 
                 def wrap_started(value: object = None) -> None:
                     type(task_status).started(task_status, value)  # type: ignore
-                    if trio.lowlevel.current_task().parent_nursery is not nursery:
+                    if child_task.parent_nursery is not nursery:
                         # started() didn't move the task due to a cancellation,
                         # so it doesn't get the shield
                         return
