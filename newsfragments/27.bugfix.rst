@@ -1,6 +1,0 @@
-:func:`open_service_nursery` no longer assumes that ``TaskStatus.started()``
-will be called from inside the task that was just started. This restores
-feature parity with regular Trio nurseries, which allow ``started()`` to be
-called anywhere, and fixes
-`trio-asyncio issue #135 <https://github.com/python-trio/trio-asyncio/issues/135>`__.
-
