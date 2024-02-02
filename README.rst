@@ -1,5 +1,5 @@
-tricycle: experimental extensions for Trio
-==========================================
+tricycle: miscellaneous extensions for Trio
+===========================================
 
 .. image:: https://img.shields.io/pypi/v/tricycle.svg
    :target: https://pypi.org/project/tricycle
@@ -26,26 +26,9 @@ tricycle: experimental extensions for Trio
    :alt: Checked with mypy
 
 
-This is a library of interesting-but-maybe-not-yet-fully-proven extensions to
-`Trio <https://github.com/python-trio/trio>`__, the friendly Python library
+This is a library of extensions to `Trio
+<https://github.com/python-trio/trio>`__, the friendly Python library
 for async concurrency and I/O.
-
-While we won't release known-broken code, and we strive for
-cleanliness and good test coverage, please be advised that
-``tricycle`` is mostly one person's box of tools that seemed like a
-good idea at the time, and should be treated with according skepticism
-if you're contemplating using it in production. It hasn't necessarily
-been reviewed or tested to Trio's standards, it supports at minimum
-Python 3.8, and some features might not be available on PyPy or on
-Windows.
-
-* If you find that it meets your needs, you're welcome to use it. We'll
-  endeavor to provide a (short) deprecation period on API changes, but
-  no guarantees on that yet.
-
-* If you find that it doesn't meet your needs, feel free to `let us know
-  <https://github.com/oremanj/tricycle/issues>`__, but don't say you
-  weren't warned. :-)
 
 Currently we have:
 
@@ -57,7 +40,23 @@ Currently we have:
 * a way to make objects that want to keep background tasks running during the
   object's lifetime (``tricycle.BackgroundObject`` and the more general
   ``tricycle.ScopedObject``)
-* [watch this space!]
+* an analog of ``ContextVar`` that is inherited through the task tree rather
+  than across ``start_soon()`` calls, and thus provides more safety for
+  accessing a resource that is being managed by a parent task
+  (``tricycle.TreeVar``)
+
+While we won't release known-broken code, and we strive for
+cleanliness and good test coverage, please be advised that
+``tricycle`` is mostly one person's box of tools and has not necessarily
+been reviewed or tested to Trio's standards. It *is* being used in
+production, and API churn has been minimal thus far although we're not
+making any firm stability guarantees. If you find that it doesn't meet
+your needs, feel free to `let us know
+<https://github.com/oremanj/tricycle/issues>`__ and we'll endeavor to
+improve things.
+
+tricycle is tested on Linux, Windows, and macOS, on CPython versions 3.8
+through 3.12. It will probably work on PyPy as well.
 
 
 License and history

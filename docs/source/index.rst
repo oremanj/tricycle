@@ -4,11 +4,12 @@
    contain the root `toctree` directive.
 
 
-==========================================================================
-tricycle: Experimental extensions for Trio, the friendly async I/O library
-==========================================================================
+===========================================================================
+tricycle: Miscellaneous extensions for Trio, the friendly async I/O library
+===========================================================================
 
-``tricycle`` is a library of extensions to `Trio <https://trio.readthedocs.io/en/latest/>`__ which are a bit too specialized or experimental to include in Trio directly.
+``tricycle`` is a library of miscellaneous extensions for `Trio
+<https://trio.readthedocs.io/en/latest/>`__.
 
 .. toctree::
    :maxdepth: 2

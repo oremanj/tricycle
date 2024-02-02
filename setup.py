@@ -7,7 +7,7 @@ LONG_DESC = open("README.rst", encoding="utf-8").read()
 setup(
     name="tricycle",
     version=__version__,
-    description="Experimental extensions for Trio, the friendly async I/O library",
+    description="Miscellaneous extensions for Trio, the friendly async I/O library",
     url="https://github.com/oremanj/tricycle",
     long_description=LONG_DESC,
     author="Joshua Oreman",
@@ -26,7 +26,7 @@ setup(
         "Operating System :: MacOS :: MacOS X",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: Implementation :: CPython",
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
     ],
 )
