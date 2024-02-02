@@ -5,6 +5,19 @@ Release history
 
 .. towncrier release notes start
 
+tricycle 0.4.1 (2024-02-02)
+---------------------------
+
+* :func:`open_service_nursery` no longer assumes that ``TaskStatus.started()``
+  will be called from inside the task that was just started. This restores
+  feature parity with regular Trio nurseries, which allow ``started()`` to be
+  called anywhere, and fixes
+  `trio-asyncio issue #135 <https://github.com/python-trio/trio-asyncio/issues/135>`__. (`#27 <https://github.com/oremanj/tricycle/issues/27>`__)
+
+* tricycle no longer advertises itself as "experimental"; it has been around
+  for more than 4 years at this point and is being used in production.
+
+
 tricycle 0.4.0 (2024-01-11)
 ---------------------------
 
