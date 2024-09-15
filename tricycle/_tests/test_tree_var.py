@@ -3,6 +3,14 @@ import trio
 import trio.testing
 from functools import partial
 from typing import Optional, Any, cast
+from typing import NoReturn
+
+from collections.abc import AsyncGenerator
+import sys
+import random
+from trio._core._tests.test_asyncgen import step_outside_async_context
+from threading import Thread
+import time
 
 from .. import TreeVar, TreeVarToken
 
@@ -127,7 +135,7 @@ async def test_treevar_token_bound_to_task_that_obtained_it() -> None:
         nursery.cancel_scope.cancel()
 
 
-def test_treevar_outside_run() -> None:
+def test_treevar_sync_context() -> None:
     async def run_sync(fn: Any, *args: Any) -> Any:
         return fn(*args)
 
@@ -136,8 +144,351 @@ def test_treevar_outside_run() -> None:
         tv1.get,
         partial(tv1.get, 20),
         partial(tv1.set, 30),
-        lambda: tv1.reset(trio.run(run_sync, tv1.set, 10)),
+        lambda: tv1.reset(tv1.set(10)),
         tv1.being(40).__enter__,
     ):
-        with pytest.raises(RuntimeError, match="must be called from async context"):
-            operation()  # type: ignore
+        operation()  # type: ignore
+
+    diff_context_regex = r".*was created in a different Context"
+    # Resetting the context var in sync context to the token set in async context should raise
+    with pytest.raises(ValueError, match=diff_context_regex):
+        tv1.reset(trio.run(run_sync, tv1.set, 10))
+
+    tv2 = TreeVar("tv2", default=10)
+    # Assert that being also works in sync context
+    with tv2.being(30):
+        assert tv2.get() == 30
+    assert tv2.get() == 10
+
+    def mix_async_and_sync() -> None:
+        token_sync = tv2.set(15)
+        assert tv2.get() == 15
+
+        trio_task: trio.lowlevel.Task = None  # type: ignore[assignment]
+        token_async: TreeVarToken[int] = None  # type: ignore[assignment]
+
+        async def set_and_get() -> None:
+            nonlocal trio_task
+            nonlocal token_async
+            # Assert that the new trio run picks up the
+            # most-recently set value in the sync context
+            assert tv2.get() == 15
+
+            token_async = tv2.set(20)
+            # Assert that setting in async context works
+            assert tv2.get() == 20
+
+            # Assert that resetting the context var in async context
+            # to the token set in sync context raises
+            with pytest.raises(ValueError, match=diff_context_regex):
+                tv2.reset(token_sync)
+
+            # Assert that resetting the context var in async context
+            # to the token set in the async context works
+            tv2.reset(token_async)
+            assert tv2.get() == 15
+
+            # Set it to another value again and make sure sync context
+            # is not afffected
+            tv2.set(20)
+            trio_task = trio.lowlevel.current_task()
+
+        trio.run(set_and_get)
+
+        # Assert that getting the last value set inside the trio task works
+        assert tv2.get_in(trio_task) == 20
+
+        # Assert that the value is not affected by the trio's run
+        assert tv2.get() == 15
+
+        # Assert that resetting the token in the same context works
+        tv2.reset(token_sync)
+        assert tv2.get() == 10
+        with pytest.raises(ValueError, match=diff_context_regex):
+            tv2.reset(token_async)
+
+    mix_async_and_sync()
+
+
+def test_treevar_on_kernel_threads() -> None:
+    #  val1 = for tv1
+    #  val2 = for tv2
+    #  _v1  = initial value
+    #  _v2  = new value
+    val1_v1 = random.randint(1, 10)
+    val1_v2 = random.randint(1, 10)
+    val2_v1 = random.randint(1, 10)
+    val2_v2 = random.randint(1, 10)
+
+    def thread_task() -> None:
+        # Assert that first time getting value in a new kernel thread raises LookupError
+        with pytest.raises(LookupError):
+            tv1.get()
+        with pytest.raises(LookupError):
+            tv2.get()
+
+        tv1.set(val1_v2)
+        tv2.set(val2_v2)
+        time.sleep(0.1)  # increase chance of context switching
+
+        # Assert that the value is not mixed up between multiple kernel threads
+        assert tv1.get() == val1_v2
+        assert tv2.get() == val2_v2
+
+    tv1 = TreeVar[int]("tv1")
+    tv2 = TreeVar[int]("tv2")
+    tv1.set(val1_v1)
+    tv2.set(val2_v1)
+    Thread(target=thread_task).start()
+    Thread(target=thread_task).start()
+
+
+def test_treevar_on_trio_threads() -> None:
+    #  val1 = for tv1
+    #  val2 = for tv2
+    #  _v1  = initial value
+    #  _v2  = new value
+    #  _v3  = newer value
+    val1_v1 = random.randint(1, 10)
+    val1_v2 = random.randint(1, 10)
+    val1_v3 = random.randint(1, 10)
+    val2_v1 = random.randint(1, 10)
+    val2_v2 = random.randint(1, 10)
+    val2_v3 = random.randint(1, 10)
+
+    def trio_thread_task() -> None:
+        # Assert that the value is the value set at the point the trio task started the thread
+        assert tv1.get() == val1_v2
+        assert tv2.get() == val2_v2
+
+        tv1.set(val1_v3)
+        tv2.set(val2_v3)
+        time.sleep(0.1)  # increase chance of context switching
+
+        # Assert that the value is the value set in this thread
+        assert tv1.get() == val1_v3
+        assert tv2.get() == val2_v3
+
+    async def nursery_task() -> None:
+        # Assert that the value is the value set before the nursery started the task
+        assert tv1.get() == val1_v1
+        assert tv2.get() == val2_v1
+
+        # Set to a diff value
+        tv1.set(val1_v2)
+        tv2.set(val2_v2)
+
+        await trio.to_thread.run_sync(trio_thread_task)
+        await trio.sleep(0)
+
+        # Assert that the value is the value set in this task before the thread was run
+        assert tv1.get() == val1_v2
+        assert tv2.get() == val2_v2
+
+    async def main() -> None:
+        # Assert that the value is the value set when trio event loop started
+        assert tv1.get() == val1_v1
+        assert tv2.get() == val2_v1
+        async with trio.open_nursery() as nursery:
+            nursery.start_soon(nursery_task)
+            nursery.start_soon(nursery_task)
+
+    tv1 = TreeVar[int]("tv1")
+    tv2 = TreeVar[int]("tv2")
+    tv1.set(val1_v1)
+    tv2.set(val2_v1)
+    trio.run(main)
+
+
+def test_treevar_on_kernel_threads_with_trio_threads() -> None:
+    #  val1 = for tv1
+    #  val2 = for tv2
+    #  _v1  = initial value
+    #  _v2  = new value
+    #  _v3  = newer value
+    val1_v1 = random.randint(1, 10)
+    val1_v2 = random.randint(1, 10)
+    val1_v3 = random.randint(1, 10)
+    val2_v1 = random.randint(1, 10)
+    val2_v2 = random.randint(1, 10)
+    val2_v3 = random.randint(1, 10)
+
+    def trio_thread_task() -> None:
+        # Assert that the value is the value set at the point the trio task started the thread
+        assert tv1.get() == val1_v2
+        assert tv2.get() == val2_v2
+
+        tv1.set(val1_v3)
+        tv2.set(val2_v3)
+        time.sleep(0.1)
+
+        # Assert that the value is the value set in this thread
+        assert tv1.get() == val1_v3
+        assert tv2.get() == val2_v3
+
+    async def main() -> None:
+        # Assert that the value is the value set when trio event loop started
+        assert tv1.get() == val1_v2
+        assert tv2.get() == val2_v2
+        await trio.to_thread.run_sync(trio_thread_task)
+
+    def thread_task() -> None:
+        # Assert that first time getting value in a new kernel thread raises LookupError
+        with pytest.raises(LookupError):
+            tv1.get()
+        with pytest.raises(LookupError):
+            tv2.get()
+        tv1.set(val1_v2)
+        tv2.set(val2_v2)
+        trio.run(main)
+
+    tv1 = TreeVar[int]("tv1")
+    tv2 = TreeVar[int]("tv2")
+    tv1.set(val1_v1)
+    tv2.set(val2_v1)
+    Thread(target=thread_task).start()
+    Thread(target=thread_task).start()
+
+
+def test_treevar_on_kernel_threads_with_kernel_threads() -> None:
+    #  val1 = for tv1
+    #  val2 = for tv2
+    #  _v1  = initial value
+    val1_v1 = random.randint(1, 10)
+    val2_v1 = random.randint(1, 10)
+
+    def inner_thread_task() -> None:
+        # Assert that first time getting value in a new kernel thread raises LookupError
+        with pytest.raises(LookupError):
+            tv1.get()
+        with pytest.raises(LookupError):
+            tv2.get()
+
+    def thread_task() -> None:
+        tv1.set(val1_v1)
+        tv2.set(val2_v1)
+        time.sleep(0.1)  # Increase chance of context switching
+
+        assert tv1.get() == val1_v1
+        assert tv2.get() == val2_v1
+        Thread(target=inner_thread_task).start()
+        Thread(target=inner_thread_task).start()
+
+    tv1 = TreeVar[int]("tv1")
+    tv2 = TreeVar[int]("tv2")
+    Thread(target=thread_task).start()
+    Thread(target=thread_task).start()
+
+
+def test_treevar_on_kernel_threads_with_trio_threads_with_kernel_threads() -> None:
+    #  val1 = for tv1
+    #  val2 = for tv2
+    #  _v1  = initial value
+    #  _v2  = new value
+    #  _v3  = newer value
+    val1_v1 = random.randint(1, 10)
+    val1_v2 = random.randint(1, 10)
+    val2_v1 = random.randint(1, 10)
+    val2_v2 = random.randint(1, 10)
+
+    def inner_thread_task() -> None:
+        # Assert that first time getting value in a new kernel thread raises LookupError
+        with pytest.raises(LookupError):
+            tv1.get()
+        with pytest.raises(LookupError):
+            tv2.get()
+
+    def trio_thread_task() -> None:
+        # Assert that the value is the value set trio thread was spaned
+        assert tv1.get() == val1_v2
+        assert tv2.get() == val2_v2
+        Thread(target=inner_thread_task).start()
+        Thread(target=inner_thread_task).start()
+
+    async def nursery_task() -> None:
+        # Assert that the value is the value set when task started
+        assert tv1.get() == val1_v1
+        assert tv2.get() == val2_v1
+
+        tv1.set(val1_v2)
+        tv2.set(val2_v2)
+        await trio.to_thread.run_sync(trio_thread_task)
+
+    async def main() -> None:
+        # Assert that the value is the value set when trio event loop started
+        assert tv1.get() == val1_v1
+        assert tv2.get() == val2_v1
+        async with trio.open_nursery() as nursery:
+            nursery.start_soon(nursery_task)
+            nursery.start_soon(nursery_task)
+
+    def thread_task() -> None:
+        tv1.set(val1_v1)
+        tv2.set(val2_v1)
+        trio.run(main)
+
+    tv1 = TreeVar[int]("tv1")
+    tv2 = TreeVar[int]("tv2")
+    Thread(target=thread_task).start()
+    Thread(target=thread_task).start()
+
+
+def test_treevar_set_in_finalizer_does_not_affect_other_tasks() -> None:
+    """
+    The flow of the test is as follows:
+      - normal task waits for custom finalizer to be called
+      - custom finalizer of generator is called
+      - sets tv1 to a different value
+        - normal task gets tv1 value
+
+    This test asserts 2 things:
+      - value of tv1 in a regular trio task is not affected by async gen's finalizer
+      - async gen finalizer is actually called because otherwise this test will block forever
+    """
+    #  val1 = for tv1
+    #  val2 = for tv2
+    #  _v1  = initial value
+    #  _v2  = new value
+    val1_v1 = random.randint(1, 10)
+    val1_v2 = random.randint(1, 10)
+    val2_v1 = random.randint(1, 10)
+    val2_v2 = random.randint(1, 10)
+
+    tv1 = TreeVar[int]("tv1")
+    tv2 = TreeVar[int]("tv2")
+
+    finalizer_has_set_value = trio.Event()
+
+    def my_finalizer(_: AsyncGenerator[object, NoReturn]) -> None:
+        tv1.set(val1_v2)
+        tv2.set(val2_v2)
+        finalizer_has_set_value.set()
+        # Assert that the value is the same as the one set earlier in agen finalizer
+        assert tv1.get() == val1_v2
+        assert tv2.get() == val2_v2
+
+    async def set_at_finalizer() -> None:
+        async def agen() -> AsyncGenerator[int, None]:
+            yield 42
+
+        await step_outside_async_context(agen())
+
+    async def get() -> None:
+        await finalizer_has_set_value.wait()
+        # The value should be unaffected by the value set in the generator's finalizer
+        assert tv1.get() == val1_v1
+        assert tv2.get() == val2_v1
+
+    async def main() -> None:
+        async with trio.open_nursery() as nursery:
+            nursery.start_soon(set_at_finalizer)
+            nursery.start_soon(get)
+
+    tv1.set(val1_v1)
+    tv2.set(val2_v1)
+    old_hooks = sys.get_asyncgen_hooks()
+    sys.set_asyncgen_hooks(finalizer=my_finalizer)
+    try:
+        trio.run(main)
+    finally:
+        sys.set_asyncgen_hooks(*old_hooks)
