@@ -1,7 +1,6 @@
 import abc
-import functools
 from contextlib import asynccontextmanager
-from trio import Nursery
+from types import TracebackType
 from typing import (
     Any,
     AsyncIterator,
@@ -9,7 +8,6 @@ from typing import (
     Callable,
     ClassVar,
     Dict,
-    Optional,
     Type,
     TypeVar,
     TYPE_CHECKING,
@@ -130,7 +128,12 @@ class ScopedObject(metaclass=ScopedObjectMeta):
         async def __aenter__(self: T) -> T:
             raise AssertionError
 
-        async def __aexit__(self, *exc: object) -> None:
+        async def __aexit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc_value: BaseException | None,
+            traceback: TracebackType | None,
+        ) -> None:
             raise AssertionError
 
 
